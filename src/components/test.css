@@ -1,0 +1,29 @@
+.scrollable-table {
+    overflow-x: auto;
+    
+  }
+  .scrollable-table th:first-child,
+  .scrollable-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 1;
+    text-align: initial;
+    
+  }
+  .scrollable-table th{
+    text-transform: capitalize;
+    padding-left: 0%;
+    text-align: center;
+  
+    
+  }
+  @media (max-width: 600px) {
+    body {
+      font-size: 10px;
+    }
+    .scrollable-table th {
+      font-size: 8px;
+      
+    }
+  }

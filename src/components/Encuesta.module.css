@@ -1,0 +1,29 @@
+/* Encuesta.module.css */
+.encuesta-container {
+  margin-top: 15px;
+  padding: 8px;
+  border: 0.5px solid #cbd5e0;
+  border-radius: 8px;
+  box-shadow: 0 4px px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background-color: white;
+}
+.heading{
+  margin-top:-35px;
+  border: 0.5px solid #cbd5e0;
+  box-shadow: 0 4px px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+
+
+                        
+
+/* Estilos responsivos para dispositivos pequeños */
+@media only screen and (max-width: 600px) {
+  .customTable th,
+  .customTable td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
