@@ -52,6 +52,42 @@ const Encuesta = () => {
   const [mostrarOtroCurso, setMostrarOtroCurso] = useState(false);
   const [valoraciones, setValoraciones] = useState([]);
   const valoracionIds = valoraciones.map((valoracion) => String(valoracion.id));
+  const [isValid, setIsValid] = useState(true);
+  const [validacionTabla, setValidacionTabla] = useState(
+    Array(valoraciones.length).fill(true)
+  );
+  const [
+    selectedLeGustariaTomarOtroCurso,
+    setSelectedLeGustariaTomarOtroCurso,
+  ] = useState("");
+  const [mostrarBotonBorrar, setMostrarBotonBorrar] = useState(false);
+  const [mostrarMensaje, setMostrarMensaje] = useState(false);
+
+  const handleSelectchange = (e) => {
+    const selectedValue = e.target.value;
+    if (selectedValue) {
+      setRespuestas((prevRespuestas) => ({
+        ...prevRespuestas,
+        NombreInstructor: selectedValue,
+      }));
+      setIsValid(true);
+    } else {
+      setIsValid(false);
+    }
+  };
+
+  const handleTableRadioChange = (value, field, index) => {
+    setRespuestas((prevRespuestas) => ({
+      ...prevRespuestas,
+      [field]: value,
+    }));
+
+    setValidacionTabla((prevValidacion) => {
+      const nuevasValidaciones = [...prevValidacion];
+      nuevasValidaciones[index] = Boolean(value);
+      return nuevasValidaciones;
+    });
+  };
 
   useEffect(() => {
     const obtenerValoraciones = async () => {
@@ -62,7 +98,6 @@ const Encuesta = () => {
         console.error("Error al obtener nombres de valoraciones:", error);
       }
     };
-
     obtenerValoraciones();
   }, []);
 
@@ -147,6 +182,7 @@ const Encuesta = () => {
             />
           </Heading>
         </Box>
+
         <Box className={styles["encuesta-container"]}>
           <Text fontSize="5xl" fontWeight="bold" mt={4} textAlign="start">
             ¡NOS GUSTARÍA SABER LO QUE OPINAS!
@@ -159,8 +195,13 @@ const Encuesta = () => {
             * Indica que la pregunta es obligatoria
           </Text>
         </Box>
+
         <form onSubmit={handleSubmit}>
-          <Box mb={4} className={styles["encuesta-container"]}>
+          <Box
+            mb={4}
+            className={styles["encuesta-container"]}
+            borderColor={isValid ? "gray.300" : "red.500"}
+          >
             <FormControl mb={4}>
               <FormLabel htmlFor="nombreInstructor" fontWeight="bold">
                 Nombre del Instuctor{" "}
@@ -172,19 +213,21 @@ const Encuesta = () => {
                 id="nombreInstructor"
                 variant="outline"
                 placeholder="Elegir"
-                onChange={(e) => {
-                  setRespuestas((prevRespuestas) => ({
-                    ...prevRespuestas,
-                    NombreInstructor: e.target.value,
-                  }));
-                }}
+                onChange={handleSelectchange}
+                required
               >
                 <option value="Johnny Cusi"> Johnny Cusi </option>
                 <option value="Marco Silva"> Marco Silva </option>
                 <option value="Sulca"> Sulca</option>
               </Select>
+              {!isValid && (
+                <Text textAlign="start" color="red.500" fontSize="sm" mt="2">
+                  Debes seleccionar un instructor.
+                </Text>
+              )}
             </FormControl>
           </Box>
+
           <Box className={styles["encuesta-container"]}>
             <FormControl mb={4}>
               <Text textAlign="start" fontWeight="bold">
@@ -193,6 +236,7 @@ const Encuesta = () => {
               <Image src="/imagenes/Recurso 2.png" maxW="100%" h="auto" />
             </FormControl>
           </Box>
+
           <Box className={styles["encuesta-container"]}>
             <FormLabel marginTop="10px" fontWeight="bold">
               Acerca del INSTRUCTOR...{" "}
@@ -213,7 +257,7 @@ const Encuesta = () => {
                 <Tbody>
                   <Tr>
                     <Td>Maneja el contenido del curso</Td>
-                    {valoraciones.map((valoracion) => (
+                    {valoraciones.map((valoracion, index) => (
                       <Td key={valoracion.id}>
                         <Radio
                           borderColor="gray.500"
@@ -225,10 +269,11 @@ const Encuesta = () => {
                             String(valoracion.id)
                           }
                           onChange={() =>
-                            setRespuestas((prevRespuestas) => ({
-                              ...prevRespuestas,
-                              ManejaContenidoCurso: String(valoracion.id),
-                            }))
+                            handleTableRadioChange(
+                              String(valoracion.id),
+                              "ManejaContenidoCurso",
+                              index
+                            )
                           }
                           value={String(valoracion.id)}
                         />
@@ -240,7 +285,7 @@ const Encuesta = () => {
                     <Td>
                       Usa gráficos e ilustraciones para un mejor entendimiento
                     </Td>
-                    {valoraciones.map((valoracion) => (
+                    {valoraciones.map((valoracion, index) => (
                       <Td key={valoracion.id}>
                         <Radio
                           borderColor="gray.500"
@@ -252,10 +297,11 @@ const Encuesta = () => {
                             String(valoracion.id)
                           }
                           onChange={() =>
-                            setRespuestas((prevRespuestas) => ({
-                              ...prevRespuestas,
-                              UsaGraficosIlustraciones: String(valoracion.id),
-                            }))
+                            handleTableRadioChange(
+                              String(valoracion.id),
+                              "UsaGraficosIlustraciones",
+                              index
+                            )
                           }
                           value={String(valoracion.id)}
                         />
@@ -405,6 +451,11 @@ const Encuesta = () => {
                   </Tr>
                 </Tbody>
               </Table>
+              {!validacionTabla.every((isValid) => isValid) && (
+                <Text textAlign="start" color="red.500" fontSize="sm" mt="2">
+                  Debes seleccionar una opción para cada pregunta en la tabla.
+                </Text>
+              )}
             </Box>
           </Box>
           <Box className={styles["encuesta-container"]}>
@@ -529,7 +580,9 @@ const Encuesta = () => {
               </Stack>
             </Box>
           </Box>
-          <Box className={styles["encuesta-container"]}>
+          <Box className={styles["encuesta-container"]}
+          borderColor={!mostrarMensaje ?  "gray.300" : "red.500" }
+          >
             <FormLabel marginTop="10px" fontWeight="bold">
               Le gustaría tomar otro curso con nosotros{" "}
               <Text as="span" color="red">
@@ -538,12 +591,17 @@ const Encuesta = () => {
             </FormLabel>
             <Box className={styles["encuesta-container"]}>
               <RadioGroup
+                value={selectedLeGustariaTomarOtroCurso}
                 onChange={(value) => {
+                  setSelectedLeGustariaTomarOtroCurso(value);
                   setRespuestas((prevRespuestas) => ({
                     ...prevRespuestas,
                     LeGustariaTomarOtroCurso: value,
                   }));
                   setMostrarOtroCurso(value === "1");
+                  setMostrarBotonBorrar(true);
+                  setMostrarMensaje(false)
+                  
                 }}
               >
                 <Stack>
@@ -573,6 +631,39 @@ const Encuesta = () => {
                   </Radio>
                 </Stack>
               </RadioGroup>
+              {mostrarBotonBorrar && (
+                <Box>
+                  <Button
+                    size="sm"
+                    backgroundColor="transparent"
+                    fontWeight="normal"
+                    onClick={() => {
+                      if (selectedLeGustariaTomarOtroCurso) {
+                        // Aquí realizas las acciones correspondientes al borrar la selección
+                        setSelectedLeGustariaTomarOtroCurso("");
+                        setRespuestas({
+                          ...respuestas,
+                          LeGustariaTomarOtroCurso: "",
+                        });
+                        setMostrarOtroCurso(false);
+                        setMostrarBotonBorrar(false);
+                        setMostrarMensaje(true);
+
+                      } else {
+                        setMostrarMensaje(false)
+                      }
+                    }}
+                  >
+                    Borrar selección
+                  </Button>
+                  
+                </Box>
+              )}
+              {mostrarMensaje && (
+                    <Text textAlign="start" color="red.500" fontSize="sm" mt="2">
+                      Debes seleccionar una opción antes de borrar.
+                    </Text>
+                  )}
             </Box>
           </Box>
           {mostrarOtroCurso && (
